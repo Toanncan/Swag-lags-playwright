@@ -23,7 +23,6 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ["html"],
     ['allure-playwright', { outputFolder: "allure-results" }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -36,8 +35,6 @@ export default defineConfig({
     headless: false,
     viewport: null,
     screenshot: 'only-on-failure',
-    trace: 'retain-on-failure',
-    video: 'retain-on-failure',
     launchOptions: {
       args: ['--start-maximized']
     },
