@@ -18,3 +18,11 @@ test("Login with invalid password", async ({ loginPage }) => {
     await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username and password do not match any user in this service");
 
 });
+
+
+test("Login with valid value", async ({ loginPage, productPage }) => {
+    await loginPage.login("standard_user", "secret_sauce");
+
+    await expect(await productPage.getProductTitlePage()).toBe("Swag Labs");
+
+});
