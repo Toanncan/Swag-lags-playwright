@@ -29,4 +29,10 @@ test("Sort Price (high to low)", async ({ productPage }) => {
     await productPage.selectSort("Price (high to low)");
 
     await expect(productPage.isProductPriceSortByDescending()).toBeTruthy();
-})
+});
+
+test("Click add to cart button at Sauce Labs Backpack", async ({ productPage }) => {
+    (await productPage.getAddToCartButtonByProductName("Sauce Labs Backpack")).click();
+
+    await productPage.isRemoveButtonDisplayAtProduct("Sauce Labs Backpack");
+});
