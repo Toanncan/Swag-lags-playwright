@@ -6,6 +6,7 @@ export class ProductPage extends BasePage {
     readonly sortDropdown: Locator;
     readonly allproduct: Locator;
     readonly allPriceProduct: Locator;
+    readonly shoppingCartIcon: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -13,6 +14,7 @@ export class ProductPage extends BasePage {
         this.sortDropdown = page.locator(".product_sort_container");
         this.allproduct = page.locator(".inventory_item_name");
         this.allPriceProduct = page.locator(".inventory_item_price");
+        this.shoppingCartIcon = page.locator(".shopping_cart_link");
     }
 
     async getProductTitlePage(): Promise<string> {
@@ -102,6 +104,18 @@ export class ProductPage extends BasePage {
         const expectedSort = expectProductPrice.sort().reverse();
 
         return actualProductPrice === expectedSort;
+    };
+
+    async getAddToCartButtonByProductName(productName: string): Promise<Locator> {
+        return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`);
+    };
+
+    async isRemoveButtonDisplayAtProduct(productName: string): Promise<boolean> {
+        return await this.page.locator(`//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`).isVisible();
+    };
+
+    async clickShoppingCartIcon(): Promise<void> {
+        await this.shoppingCartIcon.click();
     }
 };
 
