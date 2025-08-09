@@ -1,7 +1,8 @@
 import { test as baseTest } from "@playwright/test";
-import { LoginPage } from "../src/pages/LoginPage";
 import { ProductPage } from "../src/pages/ProductPage";
 import { CartPage } from "../src/pages/CartPage";
+import { LoginPage } from "../src/pages/LoginPage";
+
 
 const test = baseTest.extend<{
     loginPage: LoginPage;
