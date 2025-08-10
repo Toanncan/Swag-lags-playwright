@@ -1,13 +1,11 @@
-name: Playwright Tests
+name: Playwright Tests & Auto Merge
 
 on:
   push:
-    branches: [ "main" , "master"]
-  pull_request:
-    branches: [ "main","master" ]
+    branches: ["test-ci"]
 
 jobs:
-  test:
+  test-and-merge:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,10 +32,28 @@ jobs:
       - name: Generate Allure report
         run: npx allure generate allure-results --clean -o allure-report
 
-
       - name: Upload Allure report artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
+
+      # Auto create PR to master if tests pass
+      - name: Create Pull Request to master
+        if: success()
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: test-ci
+          base: master
+          title: "Auto merge from test-ci to master"
+          body: "This PR was automatically created after successful tests."
+          labels: auto-merge
+
+      # Auto merge PR
+      - name: Merge PR
+        if: success()
+        run: gh pr merge --merge --auto "Auto merge from test-ci to master"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
