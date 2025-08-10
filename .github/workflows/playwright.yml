@@ -39,20 +39,21 @@ jobs:
           name: allure-report
           path: allure-report
 
+      # Create PR from test-ci to master
       - name: Create Pull Request to master
         id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: test-ci
           base: master
           title: "Auto merge from test-ci to master"
           body: "This PR was automatically created after successful tests."
           labels: auto-merge
+          branch-suffix: timestamp   # Tạo nhánh mới, tránh trùng với test-ci
 
+      # Auto merge PR only if it was created
       - name: Merge PR
+        if: steps.cpr.outputs.pull-request-operation == 'created'
         run: gh pr merge --merge --auto ${{ steps.cpr.outputs.pull-request-number }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
