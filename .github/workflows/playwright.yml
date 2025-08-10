@@ -39,10 +39,8 @@ jobs:
           name: allure-report
           path: allure-report
 
-     # Auto create PR to master if tests pass
       - name: Create Pull Request to master
         id: cpr
-        if: success()
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -51,8 +49,13 @@ jobs:
           title: "Auto merge from test-ci to master"
           body: "This PR was automatically created after successful tests."
           labels: auto-merge
-
-# Auto merge PR
+      
+      - name: Auto approve PR
+        if: success()
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Merge PR
         if: success()
         run: gh pr merge --merge --auto ${{ steps.cpr.outputs.pull-request-number }}
