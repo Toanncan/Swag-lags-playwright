@@ -49,4 +49,6 @@ test("Add more product to Cart", async ({ productPage, cartPage }) => {
     await productPage.clickShoppingCartIcon();
 
     await cartPage.isProductAtUIMappingWithProductToAdd("Sauce Labs Onesie", "Sauce Labs Bolt T-Shirt");
+
+    //test ci
 })
