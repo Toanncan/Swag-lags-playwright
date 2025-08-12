@@ -2,7 +2,7 @@ name: Playwright Tests & Auto Merge
 
 on:
   push:
-    branches: ["test-ci"]
+    branches: ["dev"]
 
 permissions:
   contents: write
