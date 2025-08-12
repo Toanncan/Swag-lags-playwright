@@ -27,6 +27,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      # Chạy test, nếu fail thì dừng luôn và không tạo PR
       - name: Run Playwright tests with Allure
         run: npx playwright test --reporter=line,allure-playwright
 
@@ -43,14 +44,15 @@ jobs:
           name: allure-report
           path: allure-report
 
-      # Create PR from dev to master
+      # Tạo PR từ dev sang master (chỉ chạy nếu test pass)
       - name: Create Pull Request to master
+        if: success() # chỉ chạy nếu toàn bộ step trước đó pass
         id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: master        # merge vào master
-          head: dev           # lấy code từ dev
+          base: master
+          head: dev
           title: "Auto merge from dev to master"
           body: "This PR was automatically created after successful tests."
           labels: auto-merge
@@ -62,8 +64,6 @@ jobs:
         uses: hmarr/auto-approve-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          PULL_REQUEST_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
 
       # Auto merge PR
       - name: Merge PR
