@@ -30,6 +30,12 @@ test("Don't input value 3", async ({ loginPage }) => {
     await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username is required");
 });
 
+test("Don't input value 4", async ({ loginPage }) => {
+    await loginPage.login("", "22");
+
+    await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username is required");
+});
+
 test("Login with invalid password", async ({ loginPage }) => {
     await loginPage.login("standard_user", "111");
 
