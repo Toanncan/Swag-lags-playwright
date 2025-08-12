@@ -2,7 +2,7 @@ name: Playwright Tests & Auto Merge
 
 on:
   push:
-    branches: ["test-ci", "master"]
+    branches: ["test-ci"]
 
 permissions:
   contents: write
@@ -43,17 +43,18 @@ jobs:
           name: allure-report
           path: allure-report
 
-      # Create PR from test-ci to master
+ # Create PR from dev to master
       - name: Create Pull Request to master
         id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: master
-          title: "Auto merge from test-ci to master"
+          base: master        # merge vào master
+          head: dev           # lấy code từ dev
+          title: "Auto merge from dev to master"
           body: "This PR was automatically created after successful tests."
           labels: auto-merge
-          branch-suffix: timestamp   # Tạo nhánh mới, tránh trùng với test-ci
+          branch: auto-merge-dev-to-master # Nhánh tạm cho PR
 
       # Auto merge PR only if it was created
       - name: Merge PR
