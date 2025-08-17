@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 export class BasePage {
     protected page: Page;
@@ -14,4 +14,12 @@ export class BasePage {
     async getTitle(): Promise<string> {
         return await this.page.title();
     }
+
+    async elementIsDisplayed(locator: Locator): Promise<void> {
+        await expect(locator).toBeVisible();
+    }
+
+
 }
+
+
