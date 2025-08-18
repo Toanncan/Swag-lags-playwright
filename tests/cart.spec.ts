@@ -1,11 +1,11 @@
-import { test } from "./fixtures";
+import { test } from "../fixtures/fixtures";
 import { expect } from "@playwright/test";
 
 test.beforeEach(async ({ loginPage, productPage }) => {
     await loginPage.gotoLoginPage();
     await loginPage.login("standard_user", "secret_sauce");
 
-    await (await productPage.getAddToCartButtonByProductName("Sauce Labs Backpack")).click();
+    await productPage.clickButton("Sauce Labs Backpack", "add");
     await productPage.clickShoppingCartIcon();
 });
 

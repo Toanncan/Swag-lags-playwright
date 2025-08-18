@@ -31,6 +31,10 @@ export class CartPage extends BasePage {
         return ((await this.productName.textContent()) ?? "");
     }
 
+    removeButtonAtProduct(productName: string): Locator {
+        return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div//button[text()='Remove']`)
+    };
+
     async isProductAtUIMappingWithProductToAdd(...products: string[]): Promise<boolean> {
         const acctualProductAtUI: string[] = [];
 
@@ -46,7 +50,7 @@ export class CartPage extends BasePage {
     private async getRemovedButtonByProductName(...productNames: string[]): Promise<Locator[]> {
         const removedButtons: Locator[] = [];
         for (const product of productNames) {
-            await removedButtons.push((await this.page.locator(`//div[text()='${product}']/parent::a/parent::div//button[text()='Remove']`)) ?? "");
+            await removedButtons.push((await this.removeButtonAtProduct(product)) ?? "");
         }
 
         return removedButtons;

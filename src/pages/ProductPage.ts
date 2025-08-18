@@ -25,97 +25,167 @@ export class ProductPage extends BasePage {
         await this.sortDropdown.selectOption(value);
     }
 
-    async isProductNameSortByDescending(): Promise<boolean> {
-        const actualProductNameAtUI: string[] = [];
+    // addToCartButton(productName: string): Locator {
+    //     return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`);
+    // }
 
-        const productCount = await this.allproduct.count();
-        for (let i = 0; i < productCount; i++) {
-            const productName = await this.allproduct.nth(i).textContent();
-            actualProductNameAtUI.push((productName) ?? "");
-        }
+    // removeButton(productName: string): Locator {
+    //     return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`);
+    // }
 
-        const expectedProductName: string[] = [];
-
-        for (const product of actualProductNameAtUI) {
-            expectedProductName.push(product);
-        }
-
-        const expectedSort = expectedProductName.sort().reverse();
-
-        return actualProductNameAtUI === expectedSort;
+    button(productName: string, type: "add" | "remove"): Locator {
+        return this.page.locator(
+            `//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button[text()= '${type === "add" ? "Add to cart" : "Remove"}']`
+        );
     }
 
-    async isProductNameSortByAscending(): Promise<boolean> {
-        const actualProductNameAtUI: string[] = [];
+    async clickButton(productName: string, type: "add" | "remove") {
+        await this.button(productName, type).click();
+    }
 
-        const productCount = await this.allproduct.count();
-        for (let i = 0; i < productCount; i++) {
-            const productName = await this.allproduct.nth(i).textContent();
-            actualProductNameAtUI.push((productName) ?? "");
-        }
 
-        const expectedProductName: string[] = [];
-        for (const product of actualProductNameAtUI) {
-            expectedProductName.push(product);
-        }
+    // async isProductNameSortByDescending(): Promise<boolean> {
+    //     const actualProductNameAtUI: string[] = [];
 
-        const expectedSort = expectedProductName.sort();
+    //     const productCount = await this.allproduct.count();
+    //     for (let i = 0; i < productCount; i++) {
+    //         const productName = await this.allproduct.nth(i).textContent();
+    //         actualProductNameAtUI.push((productName) ?? "");
+    //     }
 
-        return actualProductNameAtUI === expectedSort;
-    };
+    //     const expectedProductName: string[] = [];
 
-    async isProductPriceSortByAscending(): Promise<boolean> {
-        const actualProductPrice: number[] = [];
+    //     for (const product of actualProductNameAtUI) {
+    //         expectedProductName.push(product);
+    //     }
 
-        const productCount = await this.allPriceProduct.count();
+    //     const expectedSort = expectedProductName.sort().reverse();
 
-        for (let i = 0; i < productCount; i++) {
-            const productPrice = Number((await this.allPriceProduct.nth(i).textContent())?.replace("$", ""));
-            actualProductPrice.push(productPrice);
-        }
+    //     return actualProductNameAtUI === expectedSort;
+    // }
 
-        const expectProductPrice: number[] = [];
+    // async isProductNameSortByAscending(): Promise<boolean> {
+    //     const actualProductNameAtUI: string[] = [];
 
-        for (const productPrice of actualProductPrice) {
-            expectProductPrice.push(productPrice);
-        }
+    //     const productCount = await this.allproduct.count();
+    //     for (let i = 0; i < productCount; i++) {
+    //         const productName = await this.allproduct.nth(i).textContent();
+    //         actualProductNameAtUI.push((productName) ?? "");
+    //     }
 
-        const expectSort = expectProductPrice.sort();
+    //     const expectedProductName: string[] = [];
+    //     for (const product of actualProductNameAtUI) {
+    //         expectedProductName.push(product);
+    //     }
 
-        return actualProductPrice === expectSort;
-    };
+    //     const expectedSort = expectedProductName.sort();
 
-    async isProductPriceSortByDescending(): Promise<boolean> {
-        const actualProductPrice: number[] = [];
+    //     return actualProductNameAtUI === expectedSort;
+    // };
 
-        const productCount = await this.allPriceProduct.count();
+    // async isProductPriceSortByAscending(): Promise<boolean> {
+    //     const actualProductPrice: number[] = [];
 
-        for (let i = 0; i < productCount; i++) {
-            const productPrice = Number((await this.allPriceProduct.nth(i).textContent())?.replace("$", ""));
-            actualProductPrice.push(productPrice);
-        }
+    //     const productCount = await this.allPriceProduct.count();
 
-        const expectProductPrice: number[] = [];
+    //     for (let i = 0; i < productCount; i++) {
+    //         const productPrice = Number((await this.allPriceProduct.nth(i).textContent())?.replace("$", ""));
+    //         actualProductPrice.push(productPrice);
+    //     }
 
-        for (const productPrice of actualProductPrice) {
-            expectProductPrice.push(productPrice);
-        }
+    //     const expectProductPrice: number[] = [];
 
-        const expectedSort = expectProductPrice.sort().reverse();
+    //     for (const productPrice of actualProductPrice) {
+    //         expectProductPrice.push(productPrice);
+    //     }
 
-        return actualProductPrice === expectedSort;
-    };
+    //     const expectSort = expectProductPrice.sort();
 
-    async getAddToCartButtonByProductName(productName: string): Promise<Locator> {
-        return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`);
-    };
+    //     return actualProductPrice === expectSort;
+    // };
 
-    async isRemoveButtonDisplayAtProduct(productName: string): Promise<boolean> {
-        return await this.page.locator(`//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`).isVisible();
-    };
+    // async isProductPriceSortByDescending(): Promise<boolean> {
+    //     const actualProductPrice: number[] = [];
+
+    //     const productCount = await this.allPriceProduct.count();
+
+    //     for (let i = 0; i < productCount; i++) {
+    //         const productPrice = Number((await this.allPriceProduct.nth(i).textContent())?.replace("$", ""));
+    //         actualProductPrice.push(productPrice);
+    //     }
+
+    //     const expectProductPrice: number[] = [];
+
+    //     for (const productPrice of actualProductPrice) {
+    //         expectProductPrice.push(productPrice);
+    //     }
+
+    //     const expectedSort = expectProductPrice.sort().reverse();
+
+    //     return actualProductPrice === expectedSort;
+    // };
+
+    // async getAddToCartButtonByProductName(productName: string): Promise<Locator> {
+    //     return await this.addToCartButton(productName);
+    // };
+
+    // async isRemoveButtonDisplayAtProduct(productName: string): Promise<boolean> {
+    //     return await this.removeButton(productName).isVisible();
+    // };
+
+    buttonIsDisplayed(productName: string, type: "add" | "remove") {
+        this.elementIsDisplayed(this.button(productName, type));
+    }
 
     async clickShoppingCartIcon(): Promise<void> {
         await this.shoppingCartIcon.click();
+    }
+
+    async sortByProductName(sort: "asc" | "desc"): Promise<boolean> {
+        const actualProductNames: string[] = [];
+
+        const productCount = await this.allproduct.count();
+
+        for (let i = 0; i < productCount; i++) {
+            const productName = await this.allproduct.nth(i).textContent();
+            actualProductNames.push(productName ?? "");
+        }
+
+        //copy Array --> sort
+        const expectedProductNames = actualProductNames.slice();
+        expectedProductNames.sort();
+
+        if (sort === "desc") {
+            expectedProductNames.reverse();
+        }
+
+        //compare value Array
+        return actualProductNames.every((val, idx) => val === expectedProductNames[idx]);
+    }
+
+    async sortByProductPrice(sort: "asc" | "desc"): Promise<boolean> {
+        const actualProductPrices: number[] = [];
+
+        const productCount = await this.allPriceProduct.count();
+        for (let i = 0; i < productCount; i++) {
+            const productPrice = Number(
+                (await this.allPriceProduct.nth(i).textContent())?.replace("$", "")
+            );
+            actualProductPrices.push(productPrice);
+        }
+
+        //Copy Array --> Sort
+        const expectedPrices = actualProductPrices.slice();
+        expectedPrices.sort((a, b) => a - b);
+
+        // console.log("Actual Prices: ", actualProductPrices);
+        // console.log("Expected Prices (asc): ", expectedPrices);
+
+        if (sort === "desc") {
+            expectedPrices.reverse();
+        }
+
+        return actualProductPrices.every((val, idx) => val === expectedPrices[idx]);
     }
 };
 
