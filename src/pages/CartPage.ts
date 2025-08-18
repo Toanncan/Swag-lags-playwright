@@ -35,16 +35,31 @@ export class CartPage extends BasePage {
         return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div//button[text()='Remove']`)
     };
 
-    async isProductAtUIMappingWithProductToAdd(...products: string[]): Promise<boolean> {
-        const acctualProductAtUI: string[] = [];
+    // async isProductAtUIMappingWithProductToAdd(...products: string[]): Promise<boolean> {
+    //     const acctualProductAtUI: string[] = [];
+
+    //     const productCount = await this.productName.count();
+
+    //     for (let i = 0; i < productCount; i++) {
+    //         acctualProductAtUI.push((await this.productName.nth(i).textContent()) ?? "");
+    //     }
+
+    //     return await acctualProductAtUI.sort() === products.sort();
+    // }
+
+    async productAddMappingWithUI(...products: string[]): Promise<boolean> {
+        const actualProductsAdded: string[] = [];
 
         const productCount = await this.productName.count();
-
         for (let i = 0; i < productCount; i++) {
-            acctualProductAtUI.push((await this.productName.nth(i).textContent()) ?? "");
+            actualProductsAdded.push((await this.productName.nth(i).textContent()) ?? "");
         }
 
-        return await acctualProductAtUI.sort() === products.sort();
+        actualProductsAdded.sort();
+
+        const expectProducts = products.sort();
+
+        return actualProductsAdded.every((val, idx) => val === expectProducts[idx]);
     }
 
     private async getRemovedButtonByProductName(...productNames: string[]): Promise<Locator[]> {
