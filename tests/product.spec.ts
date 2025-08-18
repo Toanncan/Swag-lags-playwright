@@ -44,7 +44,7 @@ test("Click add to cart button at Sauce Labs Backpack", async ({ page, productPa
 
     await productPage.clickShoppingCartIcon();
 
-    await expect(await cartPage.getOneProductNameAtUI()).toBe("Sauce Labs Backpack");
+    expect(await cartPage.productAddMappingWithUI("Sauce Labs Backpack")).toBeTruthy();
 
 });
 
@@ -57,5 +57,6 @@ test("Add more product to Cart", async ({ productPage, cartPage }) => {
 
     await productPage.clickShoppingCartIcon();
 
-    await cartPage.isProductAtUIMappingWithProductToAdd("Sauce Labs Onesie", "Sauce Labs Bolt T-Shirt");
+    // await cartPage.isProductAtUIMappingWithProductToAdd("Sauce Labs Onesie", "Sauce Labs Bolt T-Shirt");
+    expect(await cartPage.productAddMappingWithUI("Sauce Labs Onesie", "Sauce Labs Bolt T-Shirt")).toBeTruthy();
 })
