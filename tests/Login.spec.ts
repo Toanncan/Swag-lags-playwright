@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "../fixtures/fixtures";
 import { readExcel } from "../utils/excelReader";
+import { captureScreenshot } from "../utils/helpers";
 
 const usersLogin = readExcel("Data.xlsx", "Login");
 
@@ -21,6 +22,7 @@ test.describe("Login", () => {
             } else {
                 throw new Error(`Invalid data in Row ${index + 1}`);
             }
+            await captureScreenshot(page, `Login ${user.Status}`);
         })
     })
 })
