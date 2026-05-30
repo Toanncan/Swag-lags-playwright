@@ -1,9 +1,11 @@
 import { test } from "../fixtures/fixtures";
 import { expect } from "@playwright/test";
 
-test.beforeEach(async ({ loginPage, productPage }) => {
-    await loginPage.gotoLoginPage();
-    await loginPage.login("standard_user", "secret_sauce");
+test.use({ storageState: "playwright/.auth/user.json" });
+
+test.beforeEach(async ({ page, productPage }) => {
+    await page.goto("https://www.saucedemo.com/inventory.html");
+
 
     await productPage.clickButton("Sauce Labs Backpack", "add");
     await productPage.clickShoppingCartIcon();
