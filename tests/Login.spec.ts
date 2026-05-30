@@ -1,61 +1,27 @@
 import { expect } from "@playwright/test";
 import { test } from "../fixtures/fixtures";
+import { readExcel } from "../utils/excelReader";
 
-test.beforeEach(async ({ loginPage }) => {
-    loginPage.gotoLoginPage();
+const usersLogin = readExcel("Data.xlsx", "Login");
+
+test.describe("Login", () => {
+    test.beforeEach(async ({ loginPage }) => {
+        await loginPage.gotoLoginPage();
+    });
+
+    usersLogin.forEach((user: any, index: number) => {
+        test(`Login row ${index + 1}`, async ({ loginPage, productPage, page }) => {
+            await loginPage.login(user.UserName, user.Password);
+
+            const testStatus = (user.Status.trim()).toLowerCase();
+            if (testStatus === "pass") {
+                expect(await productPage.getProductTitlePage()).toBe(user.Expected);
+            } else if (testStatus === "fail") {
+                expect(await loginPage.getErrorMessage()).toBe(user.Expected);
+            } else {
+                throw new Error(`Invalid data in Row ${index + 1}`);
+            }
+        })
+    })
 })
 
-test("Don't input value", async ({ loginPage }) => {
-    await loginPage.login("", "");
-
-    await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username is required");
-});
-
-test("Don't input value 1", async ({ loginPage }) => {
-    await loginPage.login("", "22");
-
-    await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username is required");
-});
-
-
-test("Don't input value 2", async ({ loginPage }) => {
-    await loginPage.login("", "22");
-
-    await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username is required");
-});
-
-test("Don't input value 3", async ({ loginPage }) => {
-    await loginPage.login("", "22");
-
-    await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username is required");
-});
-
-test("Don't input value 4", async ({ loginPage }) => {
-    await loginPage.login("", "22");
-
-    await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username is required");
-});
-
-test("Login with invalid password", async ({ loginPage }) => {
-    await loginPage.login("standard_user", "111");
-
-    await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username and password do not match any user in this service");
-
-});
-
-
-test("Login with invalid password 2", async ({ loginPage }) => {
-    await loginPage.login("standard_user", "1234");
-
-    await expect(await loginPage.getErrorMessage()).toBe("Epic sadface: Username and password do not match any user in this service");
-
-});
-
-
-
-test("Login with valid value", async ({ loginPage, productPage }) => {
-    await loginPage.login("standard_user", "secret_sauce");
-
-    await expect(await productPage.getProductTitlePage()).toBe("Swag Labs");
-
-});

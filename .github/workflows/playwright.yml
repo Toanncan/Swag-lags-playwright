@@ -64,6 +64,7 @@ jobs:
         uses: hmarr/auto-approve-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
 
       # Enable auto-merge (GitHub sẽ merge khi đủ điều kiện)
       - name: Enable auto-merge

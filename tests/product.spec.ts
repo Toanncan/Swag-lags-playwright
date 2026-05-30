@@ -1,10 +1,10 @@
 import { test } from "../fixtures/fixtures";
 import { expect } from "@playwright/test";
 
-test.beforeEach(async ({ loginPage }) => {
-    await loginPage.gotoLoginPage();
+test.use({ storageState: "playwright/.auth/user.json" });
 
-    await loginPage.login("standard_user", "secret_sauce");
+test.beforeEach(async ({ page }) => {
+    await page.goto("https://www.saucedemo.com/inventory.html");
 });
 
 test("Sort Name Z to A", async ({ productPage }) => {

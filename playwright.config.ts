@@ -86,5 +86,15 @@ export default defineConfig({
     //   url: 'http://localhost:3000',
     //   reuseExistingServer: !process.env.CI,
   },
+  projects: [
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+    {
+      name: 'chromium',
+      dependencies: ['setup'],
+    },
+  ],
 }
 );

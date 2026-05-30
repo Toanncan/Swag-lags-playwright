@@ -3,3 +3,4 @@ allure-results/
 allure-report/
 test-results/
 .env
+playwright/.auth/
