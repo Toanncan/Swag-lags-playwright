@@ -1,5 +1,6 @@
 import { test } from "../fixtures/fixtures";
 import { expect } from "@playwright/test";
+import { captureScreenshot } from "../utils/helpers";
 
 test.use({ storageState: "playwright/.auth/user.json" });
 
@@ -11,10 +12,12 @@ test.beforeEach(async ({ page, productPage }) => {
     await productPage.clickShoppingCartIcon();
 });
 
-test("Click remove button", async ({ cartPage }) => {
-    cartPage.clickRemovedButtonAtProductName("Sauce Labs Backpack");
+test("Click remove button", async ({ page, cartPage }) => {
+    await cartPage.clickRemovedButtonAtProductName("Sauce Labs Backpack");
 
-    cartPage.productIsRemoved("Sauce Labs Backpack");
+    expect(await cartPage.productIsRemoved("Sauce Labs Backpack")).toBeTruthy();
+
+    await captureScreenshot(page, 'Cart-RemoveItem')
 });
 
 test("Click Continute Shopping", async ({ cartPage, productPage }) => {
