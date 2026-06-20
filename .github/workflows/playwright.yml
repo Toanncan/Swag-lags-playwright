@@ -1,17 +1,16 @@
-name: Playwright Tests & Auto Merge dev → master
+name: Playwright Tests & Deploy Report
 
 on:
   push:
     branches: ["dev"]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
   pages: write
-  id-token: write  
+  id-token: write
 
 jobs:
-  test-and-merge:
+  test-and-deploy:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -25,6 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -32,22 +32,15 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Chạy test, nếu fail thì dừng, không tạo PR
-      - name: Run Playwright tests with Allure
-        run: npx playwright test --reporter=line,allure-playwright
-
       - name: Install allure-commandline
         run: npm install -D allure-commandline
 
-      - name: Generate Allure report
-        run: npx allure generate allure-results --clean -o allure-report
+      - name: Run Playwright tests
+        run: npx playwright test --reporter=line,allure-playwright
 
-      - name: Upload Allure report artifact
+      - name: Generate Allure report
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: allure-report
+        run: npx allure generate allure-results --clean -o allure-report
 
       - name: Upload Pages artifact
         if: always()
@@ -59,39 +52,3 @@ jobs:
         if: always()
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          environment_url: ${{ steps.deployment.outputs.page_url }}
-      
-      - name: Print GitHub Pages URL
-        run: echo "Report deployed to ${{ steps.deployment.outputs.page_url }}"
-
-      # Tạo PR từ dev sang master
-      - name: Create Pull Request to master
-        if: success()
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: master
-          head: dev
-          title: "Auto merge from dev to master"
-          body: "This PR was automatically created after successful tests."
-          labels: auto-merge
-          branch: auto-merge-dev-to-master
-
-      # Auto approve PR
-      - name: Auto approve PR
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        uses: hmarr/auto-approve-action@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-
-      # Enable auto-merge (GitHub sẽ merge khi đủ điều kiện)
-      - name: Enable auto-merge
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-          merge-method: merge
