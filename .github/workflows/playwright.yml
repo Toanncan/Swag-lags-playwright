@@ -51,14 +51,14 @@ jobs:
 
       - name: Upload Pages artifact
         if: always()
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: allure-report
 
       - name: Deploy to GitHub Pages
         if: always()
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
         with:
           environment_url: ${{ steps.deployment.outputs.page_url }}
       
@@ -69,7 +69,7 @@ jobs:
       - name: Create Pull Request to master
         if: success()
         id: cpr
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: master
@@ -90,7 +90,7 @@ jobs:
       # Enable auto-merge (GitHub sẽ merge khi đủ điều kiện)
       - name: Enable auto-merge
         if: steps.cpr.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@v3
+        uses: peter-evans/enable-pull-request-automerge@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
