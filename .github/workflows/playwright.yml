@@ -6,11 +6,16 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write  
+  pull-requests: write
+  pages: write
+  id-token: write  
 
 jobs:
   test-and-merge:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -43,6 +48,22 @@ jobs:
         with:
           name: allure-report
           path: allure-report
+
+      - name: Upload Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: allure-report
+
+      - name: Deploy to GitHub Pages
+        if: always()
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          environment_url: ${{ steps.deployment.outputs.page_url }}
+      
+      - name: Print GitHub Pages URL
+        run: echo "Report deployed to ${{ steps.deployment.outputs.page_url }}"
 
       # Tạo PR từ dev sang master
       - name: Create Pull Request to master
