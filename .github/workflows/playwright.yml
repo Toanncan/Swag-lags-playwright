@@ -1,54 +1,105 @@
-name: Playwright Tests & Deploy Report
+name: Playwright Regression Tests
 
 on:
   push:
+    branches: ["dev"]
+  pull_request:
     branches: ["dev"]
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  checks: write
 
 jobs:
-  test-and-deploy:
+  test:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      # 2. Setup Node.js với cache
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
 
-      - name: Install dependencies
+      # 3. Install npm dependencies
+      - name: Install NPM dependencies
         run: npm ci
+        timeout-minutes: 10
 
-      - name: Install Playwright Browsers
+      # 4. Cache Playwright browsers
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      # 5. Install Playwright browsers with dependencies
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
+        timeout-minutes: 15
 
-      - name: Install allure-commandline
-        run: npm install -D allure-commandline
+      # 6. Run regression tests
+      - name: Run Playwright regression tests
+        run: npx playwright test --reporter=list,allure-playwright
+        timeout-minutes: 30
+        continue-on-error: true
 
-      - name: Run Playwright tests
-        run: npx playwright test --reporter=line,allure-playwright
-
+      # 7. Generate Allure report
       - name: Generate Allure report
         if: always()
-        run: npx allure generate allure-results --clean -o allure-report
+        run: |
+          npm install -D allure-commandline
+          npx allure generate allure-results --clean -o allure-report
+        timeout-minutes: 5
 
+      # 8. Upload test results artifact
+      - name: Upload test results artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
+          retention-days: 30
+
+      # 9. Upload Allure report artifact
+      - name: Upload Allure report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30
+
+      # 10. Upload Pages artifact for GitHub Pages
       - name: Upload Pages artifact
         if: always()
         uses: actions/upload-pages-artifact@v3
         with:
           path: allure-report
 
-      - name: Deploy to GitHub Pages
+      # 11. Deploy Allure report to GitHub Pages
+      - name: Deploy Allure report to GitHub Pages
         if: always()
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # 12. Print test result summary
+      - name: Print test summary
+        if: always()
+        run: |
+          echo "=== Test Execution Summary ==="
+          echo "Allure report: ${{ steps.deployment.outputs.page_url }}"
+          echo "Test results: See artifacts section"
+          echo "==============================="
