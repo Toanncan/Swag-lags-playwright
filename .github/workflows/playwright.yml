@@ -40,15 +40,17 @@ jobs:
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
-          path: ~/.cache/ms-playwright
+          path: |
+            ~/.cache/ms-playwright
+            ~/Library/Caches/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
 
       # 5. Install Playwright browsers with dependencies
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-        timeout-minutes: 15
+        run: npx playwright install --with-deps chromium firefox webkit
+        timeout-minutes: 25
 
       # 6. Run regression tests
       - name: Run Playwright regression tests
