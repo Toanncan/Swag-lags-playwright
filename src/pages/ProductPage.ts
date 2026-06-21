@@ -1,5 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
+import * as allure from "allure-js-commons";
 
 export class ProductPage extends BasePage {
     readonly titlePage: Locator;
@@ -25,14 +26,6 @@ export class ProductPage extends BasePage {
         await this.sortDropdown.selectOption(value);
     }
 
-    // addToCartButton(productName: string): Locator {
-    //     return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`);
-    // }
-
-    // removeButton(productName: string): Locator {
-    //     return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`);
-    // }
-
     button(productName: string, type: "add" | "remove"): Locator {
         return this.page.locator(
             `//div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button[text()= '${type === "add" ? "Add to cart" : "Remove"}']`
@@ -40,152 +33,71 @@ export class ProductPage extends BasePage {
     }
 
     async clickButton(productName: string, type: "add" | "remove") {
-        await this.button(productName, type).click();
+        const actionText = type === "add" ? "Add to cart" : "Remove";
+        await allure.step(`Click '${actionText}' button for product '${productName}' using locator: //div[text()='${productName}']/parent::a/parent::div/following-sibling::div/button`, async () => {
+            await this.button(productName, type).click();
+            await this.page.waitForLoadState("networkidle");
+        });
     }
-
-
-    // async isProductNameSortByDescending(): Promise<boolean> {
-    //     const actualProductNameAtUI: string[] = [];
-
-    //     const productCount = await this.allproduct.count();
-    //     for (let i = 0; i < productCount; i++) {
-    //         const productName = await this.allproduct.nth(i).textContent();
-    //         actualProductNameAtUI.push((productName) ?? "");
-    //     }
-
-    //     const expectedProductName: string[] = [];
-
-    //     for (const product of actualProductNameAtUI) {
-    //         expectedProductName.push(product);
-    //     }
-
-    //     const expectedSort = expectedProductName.sort().reverse();
-
-    //     return actualProductNameAtUI === expectedSort;
-    // }
-
-    // async isProductNameSortByAscending(): Promise<boolean> {
-    //     const actualProductNameAtUI: string[] = [];
-
-    //     const productCount = await this.allproduct.count();
-    //     for (let i = 0; i < productCount; i++) {
-    //         const productName = await this.allproduct.nth(i).textContent();
-    //         actualProductNameAtUI.push((productName) ?? "");
-    //     }
-
-    //     const expectedProductName: string[] = [];
-    //     for (const product of actualProductNameAtUI) {
-    //         expectedProductName.push(product);
-    //     }
-
-    //     const expectedSort = expectedProductName.sort();
-
-    //     return actualProductNameAtUI === expectedSort;
-    // };
-
-    // async isProductPriceSortByAscending(): Promise<boolean> {
-    //     const actualProductPrice: number[] = [];
-
-    //     const productCount = await this.allPriceProduct.count();
-
-    //     for (let i = 0; i < productCount; i++) {
-    //         const productPrice = Number((await this.allPriceProduct.nth(i).textContent())?.replace("$", ""));
-    //         actualProductPrice.push(productPrice);
-    //     }
-
-    //     const expectProductPrice: number[] = [];
-
-    //     for (const productPrice of actualProductPrice) {
-    //         expectProductPrice.push(productPrice);
-    //     }
-
-    //     const expectSort = expectProductPrice.sort();
-
-    //     return actualProductPrice === expectSort;
-    // };
-
-    // async isProductPriceSortByDescending(): Promise<boolean> {
-    //     const actualProductPrice: number[] = [];
-
-    //     const productCount = await this.allPriceProduct.count();
-
-    //     for (let i = 0; i < productCount; i++) {
-    //         const productPrice = Number((await this.allPriceProduct.nth(i).textContent())?.replace("$", ""));
-    //         actualProductPrice.push(productPrice);
-    //     }
-
-    //     const expectProductPrice: number[] = [];
-
-    //     for (const productPrice of actualProductPrice) {
-    //         expectProductPrice.push(productPrice);
-    //     }
-
-    //     const expectedSort = expectProductPrice.sort().reverse();
-
-    //     return actualProductPrice === expectedSort;
-    // };
-
-    // async getAddToCartButtonByProductName(productName: string): Promise<Locator> {
-    //     return await this.addToCartButton(productName);
-    // };
-
-    // async isRemoveButtonDisplayAtProduct(productName: string): Promise<boolean> {
-    //     return await this.removeButton(productName).isVisible();
-    // };
 
     buttonIsDisplayed(productName: string, type: "add" | "remove") {
         this.elementIsDisplayed(this.button(productName, type));
     }
 
     async clickShoppingCartIcon(): Promise<void> {
-        await this.shoppingCartIcon.click();
+        await allure.step(`Click Shopping Cart icon using locator: .shopping_cart_link`, async () => {
+            await this.shoppingCartIcon.click();
+            await this.page.waitForLoadState("networkidle");
+        });
     }
 
     async sortByProductName(sort: "asc" | "desc"): Promise<boolean> {
-        const actualProductNames: string[] = [];
+        let result = false;
+        await allure.step(`Verify products are sorted by name in ${sort === "asc" ? "ascending" : "descending"} order`, async () => {
+            const actualProductNames: string[] = [];
 
-        const productCount = await this.allproduct.count();
+            const productCount = await this.allproduct.count();
 
-        for (let i = 0; i < productCount; i++) {
-            const productName = await this.allproduct.nth(i).textContent();
-            actualProductNames.push(productName ?? "");
-        }
+            for (let i = 0; i < productCount; i++) {
+                const productName = await this.allproduct.nth(i).textContent();
+                actualProductNames.push(productName ?? "");
+            }
 
-        //copy Array --> sort
-        const expectedProductNames = actualProductNames.slice();
-        expectedProductNames.sort();
+            const expectedProductNames = actualProductNames.slice();
+            expectedProductNames.sort();
 
-        if (sort === "desc") {
-            expectedProductNames.reverse();
-        }
+            if (sort === "desc") {
+                expectedProductNames.reverse();
+            }
 
-        //compare value Array
-        return actualProductNames.every((val, idx) => val === expectedProductNames[idx]);
+            result = actualProductNames.every((val, idx) => val === expectedProductNames[idx]);
+        });
+        return result;
     }
 
     async sortByProductPrice(sort: "asc" | "desc"): Promise<boolean> {
-        const actualProductPrices: number[] = [];
+        let result = false;
+        await allure.step(`Verify products are sorted by price in ${sort === "asc" ? "ascending" : "descending"} order`, async () => {
+            const actualProductPrices: number[] = [];
 
-        const productCount = await this.allPriceProduct.count();
-        for (let i = 0; i < productCount; i++) {
-            const productPrice = Number(
-                (await this.allPriceProduct.nth(i).textContent())?.replace("$", "")
-            );
-            actualProductPrices.push(productPrice);
-        }
+            const productCount = await this.allPriceProduct.count();
+            for (let i = 0; i < productCount; i++) {
+                const productPrice = Number(
+                    (await this.allPriceProduct.nth(i).textContent())?.replace("$", "")
+                );
+                actualProductPrices.push(productPrice);
+            }
 
-        //Copy Array --> Sort
-        const expectedPrices = actualProductPrices.slice();
-        expectedPrices.sort((a, b) => a - b);
+            const expectedPrices = actualProductPrices.slice();
+            expectedPrices.sort((a, b) => a - b);
 
-        // console.log("Actual Prices: ", actualProductPrices);
-        // console.log("Expected Prices (asc): ", expectedPrices);
+            if (sort === "desc") {
+                expectedPrices.reverse();
+            }
 
-        if (sort === "desc") {
-            expectedPrices.reverse();
-        }
-
-        return actualProductPrices.every((val, idx) => val === expectedPrices[idx]);
+            result = actualProductPrices.every((val, idx) => val === expectedPrices[idx]);
+        });
+        return result;
     }
 };
 

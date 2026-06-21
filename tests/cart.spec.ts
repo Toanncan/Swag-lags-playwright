@@ -1,38 +1,38 @@
 import { test } from "../fixtures/fixtures";
 import { expect } from "@playwright/test";
-import { captureScreenshot } from "../utils/helpers";
+import { captureScreenshotForPassedTest } from "../utils/helpers";
+import * as allure from "allure-js-commons";
 
 test.use({ storageState: "playwright/.auth/user.json" });
 
 test.beforeEach(async ({ page, productPage }) => {
-    await page.goto("https://www.saucedemo.com/inventory.html");
-
-
-    await productPage.clickButton("Sauce Labs Backpack", "add");
-    await productPage.clickShoppingCartIcon();
+    await allure.step("Setup: Navigate to inventory and prepare cart with test product", async () => {
+        await page.goto("https://www.saucedemo.com/inventory.html");
+        await page.waitForLoadState("networkidle");
+        await productPage.clickButton("Sauce Labs Backpack", "add");
+        await productPage.clickShoppingCartIcon();
+    });
 });
 
-test("Click remove button", async ({ page, cartPage }) => {
-    await cartPage.clickRemovedButtonAtProductName("Sauce Labs Backpack");
-
-    expect(await cartPage.productIsRemoved("Sauce Labs Backpack")).toBeTruthy();
-
-    await captureScreenshot(page, 'Cart-RemoveItem')
+test("Remove item from cart", async ({ page, cartPage }) => {
+    const productName = "Sauce Labs Backpack";
+    await cartPage.clickRemovedButtonAtProductName(productName);
+    const isRemoved = await cartPage.productIsRemoved(productName);
+    expect(isRemoved).toBeTruthy();
+    await captureScreenshotForPassedTest(page, 'Cart-RemoveItem');
 });
 
-test("Click Continute Shopping", async ({ cartPage, productPage }) => {
+test("Continue shopping from cart", async ({ cartPage, productPage, page }) => {
     await cartPage.clickContinueShoppingButton();
-
-    await expect(await productPage.getProductTitlePage()).toBe("Swag Labs");
-
+    const title = await productPage.getProductTitlePage();
+    expect(title).toBe("Swag Labs");
+    await captureScreenshotForPassedTest(page, 'Cart-ContinueShopping');
 });
 
-test("Checkout product", async ({ cartPage }) => {
+test("Complete checkout process", async ({ cartPage, page }) => {
     await cartPage.clickCheckoutButton();
-
     await cartPage.inputCheckoutInformation("Toan", "Can", "56000");
-
     await cartPage.clickFinishButton();
-
     await cartPage.isProductCheckoutSuccess();
-})
+    await captureScreenshotForPassedTest(page, 'Cart-CheckoutSuccess');
+});

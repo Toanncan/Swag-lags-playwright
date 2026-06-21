@@ -12,9 +12,10 @@
     "@playwright/test": "^1.54.2",
     "@types/node": "^24.12.4",
     "allure-commandline": "^2.42.0",
-    "allure-playwright": "3.3.3"
+    "allure-playwright": "3.10.0"
   },
   "dependencies": {
+    "allure-js-commons": "^3.10.0",
     "xlsx": "^0.18.5"
   }
 }
