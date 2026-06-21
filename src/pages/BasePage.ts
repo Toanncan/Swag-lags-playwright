@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import * as allure from "allure-js-commons";
 
 export class BasePage {
     protected page: Page;
@@ -8,7 +9,9 @@ export class BasePage {
     }
 
     async navigate(url: string) {
-        await this.page.goto(url);
+        await allure.step(`Navigate to ${url}`, async () => {
+            await this.page.goto(url);
+        });
     }
 
     async getTitle(): Promise<string> {
@@ -19,7 +22,14 @@ export class BasePage {
         await expect(locator).toBeVisible();
     }
 
-
+    /**
+     * Helper method to add detailed steps within a parent step
+     */
+    protected async addDetailStep(stepName: string, stepFunction: () => Promise<void>): Promise<void> {
+        await allure.step(stepName, async () => {
+            await stepFunction();
+        });
+    }
 }
 
 

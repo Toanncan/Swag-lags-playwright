@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
+import * as allure from "allure-js-commons";
 
 export class CartPage extends BasePage {
     readonly productName: Locator;
@@ -35,18 +36,6 @@ export class CartPage extends BasePage {
         return this.page.locator(`//div[text()='${productName}']/parent::a/parent::div//button[text()='Remove']`)
     };
 
-    // async isProductAtUIMappingWithProductToAdd(...products: string[]): Promise<boolean> {
-    //     const acctualProductAtUI: string[] = [];
-
-    //     const productCount = await this.productName.count();
-
-    //     for (let i = 0; i < productCount; i++) {
-    //         acctualProductAtUI.push((await this.productName.nth(i).textContent()) ?? "");
-    //     }
-
-    //     return await acctualProductAtUI.sort() === products.sort();
-    // }
-
     async productAddMappingWithUI(...products: string[]): Promise<boolean> {
         const actualProductsAdded: string[] = [];
 
@@ -72,43 +61,78 @@ export class CartPage extends BasePage {
     }
 
     async clickRemovedButtonAtProductName(...productNames: string[]) {
-        for (const removedButton of await this.getRemovedButtonByProductName(...productNames)) {
-            await removedButton.click();
-        }
+        await allure.step(`Remove products from cart: ${productNames.join(", ")}`, async () => {
+            for (const productName of productNames) {
+                await allure.step(`Click 'Remove' button for product '${productName}' using locator: //div[text()='${productName}']/parent::a/parent::div//button[text()='Remove']`, async () => {
+                    const removeButton = this.removeButtonAtProduct(productName);
+                    await removeButton.click();
+                    await this.page.waitForLoadState("networkidle");
+                });
+            }
+        });
     }
 
     async productIsRemoved(...productNames: string[]): Promise<boolean> {
-        for (const product of productNames) {
-            const isHidden = await this.page.locator(`//div[text()='${product}']`).isHidden();
-            if (!isHidden) {
-                return false;
+        let result = true;
+        await allure.step(`Verify product(s) successfully removed from cart: ${productNames.join(", ")}`, async () => {
+            for (const product of productNames) {
+                await allure.step(`Check product '${product}' is not visible using locator: //div[text()='${product}']`, async () => {
+                    const isHidden = await this.page.locator(`//div[text()='${product}']`).isHidden();
+                    if (!isHidden) {
+                        result = false;
+                    }
+                });
             }
-        }
-        return true;
+        });
+        return result;
     }
 
     async clickContinueShoppingButton() {
-        await this.continueShoppingButton.click();
+        await allure.step(`Click 'Continue Shopping' button using locator: #continue-shopping`, async () => {
+            await this.continueShoppingButton.click();
+            await this.page.waitForLoadState("networkidle");
+        });
     }
 
     async clickCheckoutButton() {
-        await this.checkoutButton.click();
+        await allure.step(`Click 'Checkout' button using locator: #checkout`, async () => {
+            await this.checkoutButton.click();
+            await this.page.waitForLoadState("networkidle");
+        });
     }
 
     async inputCheckoutInformation(firstName: string, lastName: string, zipcode: string) {
-        await this.firstNameTextbox.fill(firstName);
-        await this.lastNameTextbox.fill(lastName);
-        await this.zipcodeTextbox.fill(zipcode);
-        await this.continueButton.click();
+        await allure.step(`Fill shipping information with first name: '${firstName}', last name: '${lastName}', zipcode: '${zipcode}'`, async () => {
+            await allure.step(`Fill first name field with value '${firstName}' using locator: #first-name`, async () => {
+                await this.firstNameTextbox.fill(firstName);
+            });
+
+            await allure.step(`Fill last name field with value '${lastName}' using locator: #last-name`, async () => {
+                await this.lastNameTextbox.fill(lastName);
+            });
+
+            await allure.step(`Fill postal code field with value '${zipcode}' using locator: #postal-code`, async () => {
+                await this.zipcodeTextbox.fill(zipcode);
+            });
+
+            await allure.step(`Click 'Continue' button using locator: #continue`, async () => {
+                await this.continueButton.click();
+                await this.page.waitForLoadState("networkidle");
+            });
+        });
     }
 
     async clickFinishButton() {
-        await this.finishButton.click();
+        await allure.step(`Click 'Finish' button to complete purchase using locator: #finish`, async () => {
+            await this.finishButton.click();
+            await this.page.waitForLoadState("networkidle");
+        });
     }
 
     async isProductCheckoutSuccess(): Promise<void> {
-        const acctualSuccessMessage = await this.successMessageLocator.textContent();
-
-        await expect(acctualSuccessMessage).toBe(this.checkoutSuccessMesssage);
+        await allure.step(`Verify checkout success with message using locator: .complete-text`, async () => {
+            const acctualSuccessMessage = await this.successMessageLocator.textContent();
+            await expect(acctualSuccessMessage).toBe(this.checkoutSuccessMesssage);
+        });
     }
 }
