@@ -2,8 +2,14 @@ name: Playwright Tests
 on:
   push:
     branches: [ dev ]
+
   pull_request:
     branches: [ dev ]
+
+  schedule:
+    - cron: '0 22 * * *'  # 05:00 AM giờ Việt Nam (UTC+7)
+
+  workflow_dispatch:      # Cho phép chạy manual
 
 permissions:
   contents: write
